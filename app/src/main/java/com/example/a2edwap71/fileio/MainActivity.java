@@ -1,6 +1,7 @@
 package com.example.a2edwap71.fileio;
 
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import android.widget.TextView;
 import android.widget.EditText;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,22 +30,44 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.savemenu, menu);
         return true;
     }
-
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        String path_to_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
+        EditText noteEditText = (EditText) findViewById(R.id.noteEditText);
 
         if (item.getItemId() == R.id.save) {
 
-            try {
-                PrintWriter pw =
-                        new PrintWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "data.txt"));
+            PrintWriter pw = null;
 
-                EditText et = (EditText) findViewById(R.id.editText);
-                String outputText = et.getText().toString();
-                pw.println(outputText);
-                pw.close();
+            try {
+
+                pw = new PrintWriter(new FileWriter(path_to_storage + "/data.txt", false));
+                pw.println(noteEditText.getText());
+                pw.flush();
+
             } catch (IOException e) {
                 System.out.println("I/O Error:" + e);
 
+            } finally {
+                if (pw != null) pw.close();
+            }
+        }
+
+        else if(item.getItemId()== R.id.load ){
+
+            BufferedReader br = null;
+            try{
+
+                br = new BufferedReader (new FileReader(path_to_storage + "/data.txt"));
+
+                String line = "";
+                while ((line = br.readLine()) != null){
+                    noteEditText.setText(noteEditText.getText() + line);
+                }
+                br.close();
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
             }
         }
 
